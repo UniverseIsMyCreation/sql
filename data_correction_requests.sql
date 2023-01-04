@@ -57,3 +57,18 @@ where amount < (
         round(avg(amount),2)
     from book
 );
+
+select
+    author,
+    title,
+    amount,
+    round(case
+        when amount = any(
+            select
+                max(amount)
+            from book
+        ) then price*0.95
+        else price
+    end,2) as new_price
+from book
+order by new_price desc;
