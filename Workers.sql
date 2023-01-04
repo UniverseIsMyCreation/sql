@@ -47,3 +47,76 @@ from trip
 where city = 'Москва'
 order by name asc;
 
+select 
+     city,
+     count(name) as Количество
+from trip
+group by city
+order by city asc;
+
+select 
+     city,
+     count(name) as Количество
+from trip
+group by city
+order by Количество desc
+limit 2;
+
+select
+    name,
+    city,
+    datediff(date_last, date_first) + 1 as Длительность
+from trip
+where city not in (
+    select
+        distinct city
+    from trip
+    where city = 'Москва' or
+    city = 'Санкт-Петербург'
+)
+order by Длительность desc, city desc;
+
+select
+    name,
+    city,
+    date_first,
+    date_last
+from trip
+where datediff(date_last, date_first) = (
+    select
+        min(datediff(date_last, date_first))
+    from trip
+);
+
+select 
+    name,
+    city,
+    date_first,
+    date_last
+from trip
+where month(date_first) = month(date_last)
+order by city asc, name asc;
+
+select
+    monthname(date_first) as Месяц,
+    count(date_first) as Количество
+from trip
+group by Месяц
+order by Количество desc, Месяц asc;
+
+select
+    name,
+    city,
+    date_first,
+    round(per_diem * (datediff(date_last, date_first) + 1),2) as Сумма
+from trip
+where month(date_first) in (2, 3) and year(date_first) = 2020
+order by name asc, Сумма desc;
+
+select
+    name,
+    round(sum(per_diem * (datediff(date_last, date_first) + 1)),2) as Сумма
+from trip
+group by name
+having count(date_first) > 3
+order by Сумма desc;
