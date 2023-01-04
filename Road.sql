@@ -32,3 +32,19 @@ INSERT INTO traffic_violation (violation, sum_fine)
 VALUES ('Превышение скорости(от 20 до 40)', 500),
        ('Превышение скорости(от 40 до 60)', 1000),
        ('Проезд на запрещающий сигнал', 1000);
+
+create table fine(
+    fine_id int primary key auto_increment,
+    name varchar(30),
+    number_plate varchar(6),
+    violation varchar(50),
+    sum_fine decimal(8,2),
+    date_violation date,
+    date_payment date
+);
+
+insert into fine (name,number_plate,violation,sum_fine,date_violation,date_payment) 
+values ('Баранов П.Е.','Р523ВТ','Превышение скорости(от 40 до 60)',Null,'2020-02-14',Null),
+('Абрамова К.А.','О111АВ','Проезд на запрещающий сигнал',Null,'2020-02-23',Null),
+('Яковлев Г.Р.','Т330ТТ','Проезд на запрещающий сигнал',Null,'2020-03-03',Null);
+
