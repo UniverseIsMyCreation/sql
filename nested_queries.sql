@@ -56,3 +56,9 @@ where amount <> any(
     select max(amount)
     from book
 )
+
+select 
+    *,
+    round(round(price*amount/(select sum(price*amount) from book),4) * 100,2) as income_percent
+from book
+order by income_percent desc
