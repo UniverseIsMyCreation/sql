@@ -48,3 +48,62 @@ values ('Баранов П.Е.','Р523ВТ','Превышение скорост
 ('Абрамова К.А.','О111АВ','Проезд на запрещающий сигнал',Null,'2020-02-23',Null),
 ('Яковлев Г.Р.','Т330ТТ','Проезд на запрещающий сигнал',Null,'2020-03-03',Null);
 
+update fine f, traffic_violation tv
+    set f.sum_fine = if(f.sum_fine is Null,
+                        (select sum_fine from traffic_violation tv where tv.violation = f.violation),
+                       f.sum_fine);
+
+update fine f, traffic_violation tv
+    set f.sum_fine = tv.sum_fine
+where tv.violation = f.violation and f.sum_fine is Null;
+
+select
+    name,
+    number_plate,
+    violation
+from fine
+group by name,number_plate,violation
+having count(*) > 1
+order by name asc, number_plate asc, violation asc;
+
+update fine f,
+    (
+        select
+            name,
+            number_plate,
+            violation
+        from fine
+        group by name,number_plate,violation
+        having count(*) > 1
+        order by name asc, number_plate asc, violation asc
+    ) as temp
+set 
+    f.sum_fine = f.sum_fine * 2
+where 
+    f.name = temp.name and
+    f.sum_fine is not Null and
+    f.number_plate = temp.number_plate and
+    f.violation = temp.violation and 
+    f.date_payment is Null;
+    
+update 
+    fine f, payment p
+set
+    f.date_payment = p.date_payment,
+    f.sum_fine = if(datediff(p.date_payment,p.date_violation) < 21,f.sum_fine/2,f.sum_fine)
+where
+    f.name = p.name and
+    f.number_plate = p.number_plate and
+    f.violation = p.violation and
+    f.date_payment is Null;
+
+create table back_payment as
+select * from fine
+where date_payment is Null;
+
+alter table back_payment
+drop column date_payment,
+drop column fine_id;
+
+delete from fine
+where month(date_violation) < 2 and year(date_violation) < 2021;
